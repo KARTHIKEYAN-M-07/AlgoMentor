@@ -23,7 +23,3 @@ Algomentor is an AI-powered coding mentor that helps beginners understand progra
 ## 🎯 Objective
 
 To provide students with an AI-assisted programming learning platform that explains errors, analyzes code quality, and suggests improvements beyond traditional compiler messages.
-
-## 👥 Team
-
-Developed as a hackathon project by Team Algomentor.
