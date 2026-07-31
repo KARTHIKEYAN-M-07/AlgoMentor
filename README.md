@@ -19,17 +19,6 @@ Algomentor is an AI-powered coding mentor that helps beginners understand progra
 - **AI Model:** Ollama (Qwen2.5-Coder)
 - **Version Control:** Git & GitHub
 
-## 📁 Project Structure
-
-```text
-Algomentor/
-├── frontend/
-├── backend/
-├── docs/
-├── README.md
-├── LICENSE
-└── .gitignore
-```
 
 ## 🎯 Objective
 
