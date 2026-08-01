@@ -1,125 +1,127 @@
-from typing import Dict
+from copy import deepcopy
 
-RESOURCE_MAP = {
-
-    # ---------------- Python ----------------
-
-    "Variables": [
-        {
-            "title": "Python Variables",
-            "url": "https://docs.python.org/3/tutorial/introduction.html"
-        },
-        {
-            "title": "W3Schools Variables",
-            "url": "https://www.w3schools.com/python/python_variables.asp"
-        },
-        {
-            "title": "GeeksforGeeks Variables",
-            "url": "https://www.geeksforgeeks.org/python-variables/"
-        }
-    ],
-
-    "Input/Output": [
-        {
-            "title": "Python Input & Output",
-            "url": "https://docs.python.org/3/tutorial/inputoutput.html"
-        },
-        {
-            "title": "W3Schools Input",
-            "url": "https://www.w3schools.com/python/ref_func_input.asp"
-        }
-    ],
-
-    "Lists": [
-        {
-            "title": "Python Lists",
-            "url": "https://docs.python.org/3/tutorial/introduction.html#lists"
-        },
-        {
-            "title": "GeeksforGeeks Lists",
-            "url": "https://www.geeksforgeeks.org/python-list/"
-        }
-    ],
-
-    "Functions": [
-        {
-            "title": "Python Functions",
-            "url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"
-        }
-    ],
-
-    "Loops": [
-        {
-            "title": "Python Loops",
-            "url": "https://docs.python.org/3/tutorial/controlflow.html"
-        }
-    ],
-
-    "Recursion": [
-        {
-            "title": "Recursion",
-            "url": "https://www.geeksforgeeks.org/recursion-in-python/"
-        }
-    ],
-
-    # ---------------- DSA ----------------
-
-    "Arrays": [
-        {
-            "title": "Arrays",
-            "url": "https://www.geeksforgeeks.org/array-data-structure/"
-        }
-    ],
-
-    "Strings": [
-        {
-            "title": "Strings",
-            "url": "https://www.geeksforgeeks.org/strings-in-python/"
-        }
-    ],
-
-    "HashMap": [
-        {
-            "title": "HashMap",
-            "url": "https://www.geeksforgeeks.org/hashmap-in-java-with-examples/"
-        }
-    ],
-
-    "Sliding Window": [
-        {
-            "title": "Sliding Window",
-            "url": "https://www.geeksforgeeks.org/window-sliding-technique/"
-        }
-    ],
-
-    "Binary Search": [
-        {
-            "title": "Binary Search",
-            "url": "https://www.geeksforgeeks.org/binary-search/"
-        }
-    ],
-
-    "Sorting": [
-        {
-            "title": "Sorting Algorithms",
-            "url": "https://www.geeksforgeeks.org/sorting-algorithms/"
-        }
-    ]
-}
+from app.resources.all_resources import ALL_RESOURCES
+from app.resources.topic_alias import TOPIC_ALIASES
 
 
-def add_learning_resources(analysis: dict):
+def normalize_topic(topic: str) -> str:
+    """
+    Convert AI generated topic into resource dictionary format.
+    """
 
-    materials = analysis.get("learning_materials")
+    if not topic:
+        return ""
 
-    if not materials:
+    topic = topic.strip()
+
+    # Exact match
+    if topic in ALL_RESOURCES:
+        return topic
+
+    # Case insensitive matching
+    for key in ALL_RESOURCES.keys():
+
+        if key.lower() == topic.lower():
+            return key
+
+    # Alias matching
+    alias_topic = TOPIC_ALIASES.get(
+        topic.lower(),
+        topic
+    )
+
+    # Check alias result
+    if alias_topic in ALL_RESOURCES:
+        return alias_topic
+
+    return topic
+
+
+
+def remove_duplicates(resources):
+    """
+    Remove duplicate resources using URL.
+    """
+
+    seen = set()
+    unique_resources = []
+
+    for resource in resources:
+
+        url = resource.get("url")
+
+        if url and url not in seen:
+
+            seen.add(url)
+            unique_resources.append(resource)
+
+    return unique_resources
+
+
+
+def get_resources(topic: str):
+    """
+    Fetch resources for a topic.
+    """
+
+    normalized_topic = normalize_topic(topic)
+
+    resources = deepcopy(
+        ALL_RESOURCES.get(
+            normalized_topic,
+            []
+        )
+    )
+
+    resources = remove_duplicates(resources)
+
+    resources.sort(
+        key=lambda item: (
+            item.get("difficulty", ""),
+            item.get("platform", "")
+        )
+    )
+
+    return resources
+
+
+
+def attach_resources(analysis: dict) -> dict:
+    """
+    Attach learning resources to AI learning materials.
+    """
+
+    if not analysis:
         return analysis
 
-    for item in materials:
 
-        topic = item.get("topic", "")
+    learning_materials = analysis.get(
+        "learning_materials",
+        []
+    )
 
-        if topic in RESOURCE_MAP:
-            item["resources"] = RESOURCE_MAP[topic]
+
+    if not learning_materials:
+
+        analysis["learning_materials"] = []
+
+        return analysis
+
+
+
+    for material in learning_materials:
+
+        topic = material.get(
+            "topic",
+            ""
+        )
+
+
+        material["resources"] = get_resources(topic)
+
+
+
+    analysis["learning_materials"] = learning_materials
+
 
     return analysis

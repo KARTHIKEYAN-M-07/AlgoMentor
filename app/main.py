@@ -13,7 +13,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "http://192.168.137.64:5173"   # Frontend PC IP
+        "http://10.111.58.119:5173"   # Frontend PC IP
     ],
     allow_credentials=True,
     allow_methods=["*"],
