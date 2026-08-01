@@ -1,3 +1,90 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
-*
-0
+# ==========================
+# Python
+# ==========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+
+# ==========================
+# Environment Variables
+# ==========================
+
+.env
+.env.*
+!.env.example
+
+
+# ==========================
+# IDE
+# ==========================
+
+.vscode/
+.idea/
+
+# ==========================
+# OS Files
+# ==========================
+
+.DS_Store
+Thumbs.db
+
+
+# ==========================
+# Logs
+# ==========================
+
+*.log
+
+
+# ==========================
+# Testing / Coverage
+# ==========================
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+
+# ==========================
+# Build
+# ==========================
+
+build/
+dist/
+*.egg-info/
+
+
+# ==========================
+# ML / Large Files
+# ==========================
+
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+
+
+# ==========================
+# Temporary Files
+# ==========================
+
+*.tmp
+*.temp
+
+
+# ==========================
+# Keep Resource Files
+# ==========================
+
+# DO NOT ignore:
+# app/resources/
+# app/resources/*.py
