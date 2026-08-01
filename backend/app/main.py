@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes.analyze import router
+from backend.app.routes.analyze import router
 
 app = FastAPI(
     title="Personalized Coding Mentor API",

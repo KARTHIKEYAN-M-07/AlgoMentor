@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.request import AnalyzeRequest
-from app.schemas.response import AnalyzeResponse
+from backend.app.schemas.request import AnalyzeRequest
+from backend.app.schemas.response import AnalyzeResponse
 
-from app.services.onecompiler import execute_code
-from app.services.ai_services import analyze_code
-from app.services.resource_service import attach_resources
+from backend.app.services.onecompiler import execute_code
+from backend.app.services.ai_services import analyze_code
+from backend.app.services.resource_service import attach_resources
 
 
 router = APIRouter()
