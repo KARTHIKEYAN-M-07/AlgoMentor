@@ -21,9 +21,8 @@ function MetricCard({ title, value, icon: Icon, colorClass, borderClass }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={`bg-slate-950/80 rounded-xl p-3.5 border ${
-        borderClass || "border-slate-800/80"
-      } flex items-center justify-between shadow-sm hover:border-slate-700 transition-all`}
+      className={`bg-slate-950/80 rounded-xl p-3.5 border ${borderClass || "border-slate-800/80"
+        } flex items-center justify-between shadow-sm hover:border-slate-700 transition-all`}
     >
       <div className="flex flex-col gap-0.5">
         <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
@@ -111,7 +110,7 @@ export default function OutputPanel() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700/60 flex items-center justify-center text-blue-400 shadow-sm">
+          <div className="w-11 h-11 rounded-xl bg-slate-800 border border-slate-700/60 flex items-center justify-center text-blue-400 shadow-sm">
             <FaTerminal className="text-lg" />
           </div>
           <div>
@@ -119,13 +118,13 @@ export default function OutputPanel() {
               Program Output
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Execution results and runtime information
+              View your program output and execution details
             </p>
           </div>
         </div>
 
         {/* Right Toolbar Buttons */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex items-center gap-3 self-start sm:self-auto">
           <button
             type="button"
             onClick={handleCopy}
@@ -156,7 +155,7 @@ export default function OutputPanel() {
       {/* BODY STATES */}
       {loading ? (
         /* STATE 1: LOADING STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4 min-h-[300px] text-center">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4 min-h-[180px] text-center">
           <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-2" />
           <h3 className="text-lg font-bold text-slate-100">Executing Program...</h3>
           <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
@@ -165,22 +164,22 @@ export default function OutputPanel() {
         </div>
       ) : !execution ? (
         /* STATE 2: EMPTY STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3 min-h-[300px]">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3 min-h-[180px]">
           <div className="w-16 h-16 rounded-full bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-slate-400 shadow-inner mb-1">
             <FaTerminal className="text-3xl text-blue-400" />
           </div>
           <h3 className="text-lg font-semibold text-slate-200">
-            No execution available.
+            No output yet
           </h3>
           <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-            Run Analyze to execute your program.
+            Run your code to see the execution results here.
           </p>
         </div>
       ) : (
         /* STATE 3: EXECUTION RESULTS */
         <div className="flex flex-col gap-5">
           {/* Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {status && (
               <MetricCard
                 title="Execution Status"
@@ -211,14 +210,7 @@ export default function OutputPanel() {
               />
             )}
 
-            {creditsRemaining !== undefined && creditsRemaining !== null && (
-              <MetricCard
-                title="Credits Remaining"
-                value={creditsRemaining}
-                icon={FaCoins}
-                colorClass="text-amber-400"
-              />
-            )}
+
           </div>
 
           {/* Standard Output Block */}
@@ -234,7 +226,7 @@ export default function OutputPanel() {
                   <span className="font-semibold text-slate-300">Standard Output</span>
                 </div>
               </div>
-              <pre className="p-4 font-mono text-xs sm:text-sm text-slate-200 overflow-x-auto whitespace-pre-wrap leading-relaxed">
+              <pre className="max-h-72 overflow-y-auto overflow-x-auto p-4 font-mono text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
                 {stdout}
               </pre>
             </motion.div>

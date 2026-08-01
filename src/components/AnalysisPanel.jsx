@@ -1,7 +1,6 @@
 import { useApp } from "../context/AppContext";
 import { motion } from "framer-motion";
 import {
-  FaRobot,
   FaLightbulb,
   FaClock,
   FaDatabase,
@@ -35,7 +34,7 @@ function InsightCard({ icon: Icon, title, content, priority, iconColor }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-slate-950/80 rounded-xl border border-slate-800/80 hover:border-slate-700 hover:bg-slate-950 transition-all duration-200 p-4 flex flex-col gap-2 shadow-sm"
+      className="bg-slate-950/70 rounded-2xl border border-slate-800 hover:border-blue-500/40 transition-all duration-200 p-5 flex flex-col gap-3 shadow-lg"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -49,12 +48,16 @@ function InsightCard({ icon: Icon, title, content, priority, iconColor }) {
         )}
       </div>
       <div className="text-xs text-slate-400 leading-relaxed font-normal mt-1">
+
         {Array.isArray(content) ? (
-          <ul className="list-disc list-inside space-y-1">
+          <div className="space-y-3">
+
             {content.map((item, idx) => (
-              <li key={idx}>
+              <div key={idx}>
+
                 {typeof item === "object" ? (
-                  <div>
+                  <div className="space-y-2">
+
                     <div className="font-semibold text-slate-200">
                       {item.topic}
                     </div>
@@ -66,22 +69,75 @@ function InsightCard({ icon: Icon, title, content, priority, iconColor }) {
                     <div className="text-xs text-cyan-400">
                       Difficulty: {item.difficulty}
                     </div>
+
+
+                    {item.resources && (
+                      <div className="mt-3 space-y-2">
+
+                        <p className="text-xs font-semibold text-slate-300">
+                          Learning Resources
+                        </p>
+
+
+                        {item.resources.map((resource, index) => (
+                          <div
+                            key={index}
+                            className="bg-slate-900 border border-slate-800 rounded-lg p-3"
+                          >
+
+                            <p className="text-sm font-semibold text-white">
+                              {resource.title}
+                            </p>
+
+                            <p className="text-xs text-slate-400">
+                              {resource.platform} • {resource.type}
+                            </p>
+
+                            <p className="text-xs text-slate-400">
+                              Difficulty: {resource.difficulty}
+                            </p>
+
+
+                            <a
+                              href={resource.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-block mt-2 text-xs text-cyan-400 hover:text-cyan-300 underline"
+                            >
+                              Open Resource →
+                            </a>
+
+                          </div>
+                        ))}
+
+                      </div>
+                    )}
+
                   </div>
+
                 ) : (
-                  item
+                  <p>{item}</p>
                 )}
-              </li>
+
+              </div>
             ))}
-          </ul>
+
+          </div>
+
         ) : typeof content === "object" ? (
+
           <pre className="whitespace-pre-wrap font-mono text-[11px] bg-slate-900 p-2 rounded text-slate-300 overflow-x-auto">
             {JSON.stringify(content, null, 2)}
           </pre>
+
         ) : (
+
           <p>{content}</p>
+
         )}
+
       </div>
-    </motion.div>
+    </motion.div >
   );
 }
 
@@ -141,26 +197,23 @@ export default function AnalysisPanel() {
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-2.5">
-          <FaRobot className="text-xl text-blue-400" />
+          <FaCode className="text-xl text-blue-400" />
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">AI Analysis</h2>
+            <h2 className="text-xl font-bold text-white tracking-tight">Code Analysis</h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Your intelligent coding mentor
+              Detailed feedback on your code quality, complexity and improvements
             </p>
           </div>
         </div>
 
         {/* Animated AI Status Badge */}
-        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          {loading ? "Analyzing..." : analysis ? "Analyzed" : "AI Ready"}
-        </span>
+
       </div>
 
       {/* Body States */}
       {loading ? (
         /* STATE 1: LOADING STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4 min-h-[400px] text-center">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4 min-h-[250px] text-center">
           <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-2" />
           <h3 className="text-lg font-bold text-slate-100 tracking-wide">Analyzing your code...</h3>
           <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
@@ -173,7 +226,7 @@ export default function AnalysisPanel() {
         </div>
       ) : error ? (
         /* STATE 2: ERROR STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center min-h-[400px]">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center min-h-[250px]">
           <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 max-w-md w-full flex flex-col items-center gap-3 shadow-lg">
             <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center text-xl mb-1">
               <FaExclamationTriangle />
@@ -186,18 +239,18 @@ export default function AnalysisPanel() {
         </div>
       ) : !analysis ? (
         /* STATE 3: EMPTY STATE */
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3 min-h-[400px]">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3 min-h-[250px]">
           <div className="w-20 h-20 rounded-full bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-slate-400 shadow-inner mb-2">
-            <FaRobot className="text-4xl text-blue-400" />
+            <FaCode className="text-xl text-blue-400" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-200">No analysis available.</h3>
+          <h3 className="text-lg font-semibold text-slate-200">No analysis yet.</h3>
           <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-            Write code and click Analyze.
+            Run code analysis to receive suggestions and improvements.
           </p>
         </div>
       ) : (
         /* STATE 4: ANALYSIS CONTENT */
-        <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+        <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
           {insightsList.map(
             (item) =>
               item.content && (

@@ -21,6 +21,7 @@ export default function EditorPanel() {
     setExecution,
     setAnalysis,
     setError,
+    setStdin,
     resetExecution,
     resetAnalysis,
   } = useApp();
@@ -141,7 +142,7 @@ export default function EditorPanel() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="w-full h-full bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col justify-between"
+      className="w-full h-full bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col"
     >
       {/* Top Section */}
       <div className="p-6 flex flex-col gap-4">
@@ -167,7 +168,7 @@ export default function EditorPanel() {
               id="editor-language-select"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="bg-slate-800 text-slate-200 border border-slate-700 rounded-xl px-3.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="python">Python</option>
               <option value="java">Java</option>
@@ -179,15 +180,12 @@ export default function EditorPanel() {
               <option value="kotlin">Kotlin</option>
             </select>
 
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full px-2.5 py-1 text-xs font-semibold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Ready
-            </span>
+
           </div>
         </div>
 
         {/* SECOND TOOLBAR (VS Code Action Icons) */}
-        <div className="flex items-center gap-1.5 py-1">
+        <div className="flex items-center gap-2 py-2 border-b border-slate-800/50">
           {actionIcons.map((action) => {
             const IconComponent = action.icon;
             return (
@@ -211,9 +209,9 @@ export default function EditorPanel() {
         </div>
 
         {/* MAIN EDITOR */}
-        <div className="rounded-xl border border-slate-800/80 overflow-hidden shadow-inner bg-slate-950">
+        <div className="rounded-2xl border border-slate-800 overflow-hidden bg-slate-950 shadow-xl shadow-black/30">
           <Editor
-            height="540px"
+            height="65vh"
             language={language}
             theme="vs-dark"
             value={code}
@@ -227,17 +225,36 @@ export default function EditorPanel() {
               cursorSmoothCaretAnimation: "on",
               lineNumbers: "on",
               renderLineHighlight: "all",
+              scrollBeyondLastLine: false,
+              smoothScrolling: true,
+              scrollbar: {
+                verticalScrollbarSize: 10,
+                horizontalScrollbarSize: 10,
+              },
             }}
+          />
+        </div>
+        {/* PROGRAM INPUT */}
+        <div className="mt-4">
+          <label className="block text-sm font-semibold text-slate-300 mb-2">
+            Program Input
+          </label>
+
+          <textarea
+            value={state.stdin || ""}
+            onChange={(e) => setStdin(e.target.value)}
+            placeholder="Enter input for your program..."
+            className="w-full h-28 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
         </div>
       </div>
 
       {/* BOTTOM BAR (VS Code Status Bar style) */}
-      <div className="bg-slate-950/80 border-t border-slate-800 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-slate-900 border-t border-slate-800 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Left Stats */}
         <div className="flex items-center gap-4 text-xs font-mono text-slate-400">
           <span>
-            Chars: <strong className="text-slate-200">{characterCount}</strong>
+            Characters: <strong className="text-slate-200">{characterCount}</strong>
           </span>
           <span>•</span>
           <span>
@@ -251,7 +268,7 @@ export default function EditorPanel() {
         <button
           type="button"
           onClick={handleAnalyze}
-          className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-cyan-500/30 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2"
+          className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold px-7 py-3 rounded-xl shadow-lg hover:shadow-cyan-500/40 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-95"
         >
           <FaRobot className="text-lg" />
           <span>Analyze Code</span>
