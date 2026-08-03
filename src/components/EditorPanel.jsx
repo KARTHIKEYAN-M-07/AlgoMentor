@@ -1,0 +1,306 @@
+import { useApp } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { analyzeCode } from "../services/analyzeService";
+import Editor from "@monaco-editor/react";
+import { motion } from "framer-motion";
+import {
+  FaCode,
+  FaRobot,
+  FaCopy,
+  FaClipboard,
+  FaAlignLeft,
+  FaTrashAlt,
+  FaDownload,
+} from "react-icons/fa";
+
+export default function EditorPanel() {
+  const {
+    state,
+    setCode,
+    setLanguage,
+    setLoading,
+    setExecution,
+    setAnalysis,
+    setError,
+    setStdin,
+    resetExecution,
+    resetAnalysis,
+  } = useApp();
+
+  const code = state.code;
+const language = state.language;
+
+  const [editorTheme, setEditorTheme] = useState(
+  localStorage.getItem("theme") === "dark"
+    ? "vs-dark"
+    : "vs"
+);
+
+useEffect(() => {
+  const updateTheme = () => {
+    const currentTheme =
+      localStorage.getItem("theme") === "dark"
+        ? "vs-dark"
+        : "vs";
+
+    setEditorTheme(currentTheme);
+  };
+
+  updateTheme();
+
+  window.addEventListener("theme-change", updateTheme);
+
+  return () =>
+    window.removeEventListener("theme-change", updateTheme);
+}, []);
+
+  const lineCount = code ? code.split("\n").length : 0;
+  const characterCount = code ? code.length : 0;
+
+  const handleAnalyze = async () => {
+    if (!code || !code.trim()) {
+      alert("Please write some code before analyzing.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      resetExecution();
+      resetAnalysis();
+      setError(null);
+
+      const result = await analyzeCode(code, language, state.stdin || "");
+
+      if (result) {
+        if (result.execution) {
+          setExecution(result.execution);
+        }
+        if (result.analysis) {
+          setAnalysis(result.analysis);
+        }
+      }
+    } catch (error) {
+      const errorMessage =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Unable to connect to the backend.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleCopy = async () => {
+    if (!code) return;
+
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch (error) {
+      alert("Unable to copy code.");
+      console.error(error);
+    }
+  };
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+
+      if (text) {
+        setCode(text);
+      }
+    } catch (error) {
+      alert("Clipboard access denied.");
+      console.error(error);
+    }
+  };
+  const handleClear = () => {
+    setCode("");
+  };
+
+  const handleDownload = () => {
+    if (!code) return;
+
+    const extensions = {
+      python: "py",
+      javascript: "js",
+      java: "java",
+      cpp: "cpp",
+      c: "c",
+      go: "go",
+      rust: "rs",
+      kotlin: "kt",
+    };
+
+    const blob = new Blob([code], {
+      type: "text/plain",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `code.${extensions[language] || "txt"}`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
+  const actionIcons = [
+    { name: "Copy", icon: FaCopy, label: "Copy Code", onClick: handleCopy },
+    { name: "Paste", icon: FaClipboard, label: "Paste Code", onClick: handlePaste },
+    {
+      name: "Format", icon: FaAlignLeft, label: "Format Code", onClick: () => {
+        alert("Code formatting will be available in a future update.");
+      }
+    },
+    { name: "Clear", icon: FaTrashAlt, label: "Clear Editor", onClick: handleClear },
+    { name: "Download", icon: FaDownload, label: "Download File", onClick: handleDownload },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="w-full h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col transition-colors duration-300"
+    >
+      {/* Top Section */}
+      <div className="p-6 flex flex-col gap-4">
+        {/* TOP TOOLBAR */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-300 dark:border-slate-800/80">
+          {/* Left Title */}
+          <div>
+            <div className="flex items-center gap-2">
+              <FaCode className="text-blue-400 text-lg" />
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Code Editor</h2>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Write, test and improve your code using AI.
+            </p>
+          </div>
+
+          {/* Right Controls */}
+          <div className="flex items-center gap-3 self-start sm:self-auto">
+            <label htmlFor="editor-language-select" className="sr-only">
+              Select Programming Language
+            </label>
+            <select
+              id="editor-language-select"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="javascript">JavaScript</option>
+              <option value="c">C</option>
+              <option value="go">Go</option>
+              <option value="rust">Rust</option>
+              <option value="kotlin">Kotlin</option>
+            </select>
+
+
+          </div>
+        </div>
+
+        {/* SECOND TOOLBAR (VS Code Action Icons) */}
+        <div className="flex items-center gap-2 py-2 border-b border-slate-800/50">
+          {actionIcons.map((action) => {
+            const IconComponent = action.icon;
+            return (
+              <div key={action.name} className="relative group">
+                <button
+                  type="button"
+                  onClick={action.onClick}
+                  aria-label={action.label}
+                  className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <IconComponent className="text-xs" />
+                </button>
+
+                {/* Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover:block bg-slate-950 text-slate-200 text-[10px] font-medium px-2 py-1 rounded border border-slate-800 whitespace-nowrap z-20 shadow-md">
+                  {action.label}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* MAIN EDITOR */}
+        <div className="rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950 shadow-xl shadow-black/20 transition-colors duration-300">
+          <Editor
+  height="65vh"
+  language={language}
+  theme={editorTheme}
+  value={code}
+  onChange={(val) => setCode(val || "")}
+  options={{
+    automaticLayout: true,
+    minimap: {
+      enabled: false,
+    },
+    wordWrap: "on",
+    fontSize: 15,
+    fontFamily: "JetBrains Mono, monospace",
+    cursorSmoothCaretAnimation: "on",
+    lineNumbers: "on",
+    renderLineHighlight: "all",
+    scrollBeyondLastLine: false,
+    smoothScrolling: true,
+    scrollbar: {
+      verticalScrollbarSize: 10,
+      horizontalScrollbarSize: 10,
+    },
+  }}
+/>
+        </div>
+        {/* PROGRAM INPUT */}
+        <div className="mt-4">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Program Input
+          </label>
+
+          <textarea
+            value={state.stdin || ""}
+            onChange={(e) => setStdin(e.target.value)}
+            placeholder="Enter input for your program..."
+            className="w-full h-28 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors duration-300"
+          />
+        </div>
+      </div>
+
+      {/* BOTTOM BAR (VS Code Status Bar style) */}
+      <div className="bg-slate-100 dark:bg-slate-900 border-t border-slate-300 dark:border-slate-800 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors duration-300">
+        {/* Left Stats */}
+        <div className="flex items-center gap-4 text-xs font-mono text-slate-600 dark:text-slate-400">
+          <span>
+            Characters: <strong className="text-slate-900 dark:text-slate-200">{characterCount}</strong>
+          </span>
+          <span>•</span>
+          <span>
+            Lines: <strong className="text-slate-900 dark:text-slate-200">{lineCount}</strong>
+          </span>
+          <span>•</span>
+          <span className="uppercase text-blue-600 dark:text-blue-400 font-semibold">{language}</span>
+        </div>
+
+        {/* Right Analyze Button */}
+        <button
+          type="button"
+          onClick={handleAnalyze}
+          className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-slate-900 dark:text-white font-semibold px-7 py-3 rounded-xl shadow-lg hover:shadow-cyan-500/40 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+        >
+          <FaRobot className="text-lg" />
+          <span>Analyze Code</span>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
